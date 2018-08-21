@@ -15,46 +15,50 @@ var connection = mysql.createConnection({
   database: "bamazon_db"
 });
 
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId + "\n");
   displayProducts();
 });
 
 function displayProducts() {
-    connection.query("SELECT * FROM products", function(err, res) {
-      for (var i = 0; i < res.length; i++) {
-        console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price);
-      }
-      console.log("-----------------------------------");
-    });
-  }
-  // function findProduct() {
-  //   inquirer
-  //   .prompt({
-  //     name: "Search for for product by ID?",
-  //     type: "rawlist",
-  //     message: "Please enter the ID of the product you'd like ot purchase"
-  //   })
-  //     .then(function(answer) {
-  //       // based on their answer, either call the bid or the post functions
-  //       if (answer.artistOrSong.toUpperCase() === "All songs by artist") {
-  //         artistSearch();
-  //         break;
-  //       }
-  //       else if (answer.artistOrSong.toUpperCase() === "Artists that appear more than once"){
-  //         artistRepeat();
-  //         break;
-  //       }
-  //       else if (answer.artistOrSong.toUpperCase() === "Songs within a specific range"){
-  //           songYears();
-  //           break;
-  //       } 
-  //       else if (answer.artistOrSong.toUpperCase() === "Specific song"){
-  //           song();
-  //           break;
-  //       }   
-  //     });
-  // }
+  connection.query("SELECT * FROM products", function (err, res) {
+    for (var i = 0; i < res.length; i++) {
+      console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price);
+    }
+    console.log("-----------------------------------");
+  });
+}
 
+function findProduct() {
+  inquirer
+    .prompt([
+      {
+        name: "Search for for product by ID",
+        type: "rawlist",
+        choices: function () {
+          var choiceArray = [];
+          for (var i = 0; i < results.length; i++) {
+            choiceArray.push(results[i].item_name);
+          }
+          return choiceArray;
+        },
+        message: "Please enter the ID of the product you'd like ot purchase",
+      },
+    {
+      name: "product ID",
+      type: "input",
+      message: "How many units would you like to purchase?"
+    }
+  ])
+  // .then(function (answer) {
+  // var chosenItem;
+  // for (var i = 0; i < results.length; i++) {
+  //   if (results[i].item_name === answer.choice) {
+  //     chosenItem = results[i];
+  //   }
+  // }
+// })
+}
+findProduct();
 
