@@ -25,7 +25,7 @@ connection.connect(function (err) {
     managerView();
 });
 
-   // List a set of menu options:
+// List a set of menu options:
 function managerView() {
     inquirer
         .prompt({
@@ -51,8 +51,8 @@ function managerView() {
                 case "Add New Item to Inventory":
                     addNew();
                     break;
-        }
-    });
+            }
+        });
 }
 
 
@@ -61,7 +61,7 @@ function managerView() {
 function displayProductsM() {
     connection.query("SELECT * FROM products", function (err, res) {
         for (var i = 0; i < res.length; i++) {
-            console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price  + " | " + res[i].stock_quantity);
+            console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity);
         }
         console.log("-----------------------------------");
     });
@@ -71,104 +71,106 @@ function displayProductsM() {
 function viewLowInv() {
     connection.query("SELECT * FROM products WHERE stock_quantity < 5", function (err, res) {
         for (var i = 0; i < res.length; i++) {
-            console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price  + " | " + res[i].stock_quantity);
+            console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity);
         }
         console.log("-----------------------------------");
     });
 }
-    // Add to Inventory
+// Add to Inventory
 // If a manager selects Add to Inventory, 
 function addToInv() {
     // your app should display a prompt that will let the manager "add more" of any item currently in the store.
     inquirer
         .prompt([
+            {
+                name: "item_id",
+                type: "input",
+                message: "What is the item ID you would like to add more of?"
+            },
+            {
+                name: "stock_inventory",
+                type: "input",
+                message: "How many more units would you like to add?"
+            },
+            // validate: function (value) {
+            //     if (isNaN(value) === false) {
+            //         return true;
+            //     }
+            //     return false;
+            // },
+        ])
+        .then(function (answer) {
+            // when finished prompting, update item quantity into the db with that info
+            connection.query(
+                "UPDATE products SET stock_quantity = stock_quantity WHERE Item_id ?",
+                {
+                    item_id: answer.item_id,
+                    stock_quantity: answer.stock_quantity
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("Your stock quantity has been updated successfully!");
+                    // Display all products inmanager view
+                    displayProductsM();
+                }
+            );
+        });
+
+}
+// If a manager selects Add New Product, it should allow the manager to add a completely new product to the store.
+// Add New Product
+function addNew() {
+    // prompt for info about the item being added to inventory
+    inquirer.prompt([
         {
-            name: "item_id",
+            name: "product_name",
             type: "input",
-            message: "What is the item ID you would like to add more of?"
+            message: "What is the name for the item you would like to add?"
         },
         {
-            name: "stock_inventory",
+            name: "department_name",
             type: "input",
-            message: "How many more units would you like to add?"
+            message: "What department would you like to place your product in?"
         },
-        //     validate: function(value) {
-        //     if (isNaN(value) === false) {
-        //         return true;
-        //     }
-        //     return false;
-        //     }
-        // }
-        // ])
-        // .then(function(answer) {
-        // // when finished prompting, insert a new item into the db with that info
-        // connection.query(
-        //     "UPDATE products SET ?",
-        //     {
-        //     item_id: answer.item_id,
-        //     category: answer.category,
-        //     starting_bid: answer.startingBid,
-        //     highest_bid: answer.startingBid
-        //     },
-        //     function(err) {
-        //     if (err) throw err;
-        //     console.log("Your auction was created successfully!");
-        //     // re-prompt the user for if they want to bid or post
-        //     start();
-        //     }
-        // );
-    //     });
-    // }
-
-//     // Add New Product
-//     addNew();
-//     function postAuction() {
-//         // prompt for info about the item being put up for auction
-//         inquirer
-//           .prompt([
-//             {
-//               name: "item",
-//               type: "input",
-//               message: "What is the item you would like to submit?"
-//             },
-//             {
-//               name: "category",
-//               type: "input",
-//               message: "What category would you like to place your auction in?"
-//             },
-//             {
-//               name: "startingBid",
-//               type: "input",
-//               message: "What would you like your starting bid to be?",
-//               validate: function(value) {
-//                 if (isNaN(value) === false) {
-//                   return true;
-//                 }
-//                 return false;
-//               }
-//             }
-//           ])
-//           .then(function(answer) {
-//             // when finished prompting, insert a new item into the db with that info
-//             connection.query(
-//               "INSERT INTO auctions SET ?",
-//               {
-//                 item_name: answer.item,
-//                 category: answer.category,
-//                 starting_bid: answer.startingBid,
-//                 highest_bid: answer.startingBid
-//               },
-//               function(err) {
-//                 if (err) throw err;
-//                 console.log("Your auction was created successfully!");
-//                 // re-prompt the user for if they want to bid or post
-//                 start();
-//               }
-//             );
-//           });
-//       }
-      
-
-
-// // If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
-// // If a manager selects Add New Product, it should allow the manager to add a completely new product to the store.
+        {
+            name: "price",
+            type: "input",
+            message: "What would you like price to be for this item?",
+            validate: function (value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
+        },
+        {
+            name: "stock_quantity",
+            type: "input",
+            message: "How many units of this product would you like to add to inventory?",
+            validate: function (value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            },
+        }
+    ])
+    .then(function (answer) {
+        // when finished prompting, insert a new item into the db with that info
+        connection.query(
+            "INSERT INTO products SET ?",
+            {
+                product_name: answer.product_name,
+                department_name: answer.department_name,
+                price: answer.price,
+                stock_quantity: answer.stock_quantity
+            },
+            function (err) {
+                if (err) throw err;
+                console.log("Your item was added successfully!");
+                // Display all products inmanager view
+                displayProductsM();
+            }
+        );
+    });
+}
